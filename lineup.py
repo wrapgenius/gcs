@@ -60,8 +60,8 @@ class Team:
 			last_name = iplayer.split()[1]
 
 			player['mlb_id']    = float(all_players.get_mlb_id(first_name=first_name,last_name=last_name)[0]) 
-			player['fg_id'] = float(all_players.get_fg_id(first_name=first_name,last_name=last_name)[0]) 
-			player['lahman_id']     = all_players.get_lahman_id(first_name=first_name,last_name=last_name)[0]
+			player['fg_id']     = float(all_players.get_fg_id(first_name=first_name,last_name=last_name)[0]) 
+			player['lahman_id'] = all_players.get_lahman_id(first_name=first_name,last_name=last_name)[0]
 			player['position']  = all_players.get_mlb_position(first_name=first_name,last_name=last_name)[0] 
 
 			info[iplayer] = player

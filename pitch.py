@@ -22,7 +22,7 @@ import heatmap
 import player
 
 #This will eventually be read from the lineup parameter file
-path_data = '../data/'
+path_data = '/Users/marco/Code/Python/Modules/gcs/data/'
 file_master_list = 'master_player_list.csv'
 
 def predict_pitch_placement(fangraphs_id, pitch='', hand='all', count='all', season='2016'):
