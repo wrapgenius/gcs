@@ -14,13 +14,17 @@ import time
 import importlib
 import logging
 import pprint
-from player import Player_Profile
+from player import Player
 
 class Team:
 
-	def __init__(self):
+	def __init__(self, lineup_file_path):
+		self.lineup = []
 		self.roster = {}
-		self.stats = {}
+		#self.stats = {}
+
+		self.import_lineup_cfg(lineup_file_path)
+		self.info = self.get_players_info() 
 
 	def import_lineup_cfg(self,lineup_file_path):
 		'''
@@ -34,24 +38,32 @@ class Team:
 
 		self.file_master_list = path['path_data'] + path['file_master_list']
 
-		home = dict(config.items('home'))
-		away = dict(config.items('away'))
+		team = dict(config.items('player_names'))
 
-		home_lineup = [] 
-		away_lineup = [] 
+		lineup = [] 
+		for i in range(len(team)):
+			lineup.append(team['b'+str(i+1)])
 
-		for i in range(len(home)):
-			home_lineup.append(home['b'+str(i+1)])
-			away_lineup.append(away['b'+str(i+1)])
-
-		self.roster['home'] = home_lineup
-		self.roster['away'] = away_lineup
-
+		self.lineup = lineup
 
 	def import_lineup_gameid(self,mlb_game_id):
 		#eventually by mlb_game_id
 		print 'soon!'
 
-	def get_players_info(self,first_name=None,last_name=None):
-		players = Player_Profile(self.file_master_list)
-		#self.roster
+	def get_players_info(self): #,first_name=None,last_name=None):
+
+		all_players = Player(self.file_master_list)
+		info = {}
+		for iplayer in self.lineup:
+			player = {}
+			first_name = iplayer.split()[0]
+			last_name = iplayer.split()[1]
+
+			player['mlb_id']    = float(all_players.get_mlb_id(first_name=first_name,last_name=last_name)[0]) 
+			player['fg_id'] = float(all_players.get_fg_id(first_name=first_name,last_name=last_name)[0]) 
+			player['lahman_id']     = all_players.get_lahman_id(first_name=first_name,last_name=last_name)[0]
+			player['position']  = all_players.get_mlb_position(first_name=first_name,last_name=last_name)[0] 
+
+			info[iplayer] = player
+
+		return info 

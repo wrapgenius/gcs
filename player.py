@@ -10,7 +10,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import random
 
-class Player_Profile:
+class Player:
+
     def __init__(self, file_master_list):
         
         players_list = pd.read_csv(file_master_list)
@@ -29,6 +30,15 @@ class Player_Profile:
         
         self.master_list = players_list
         
+    def get_mlb_id(self, full_name=None,first_name=None,last_name=None):
+        if (full_name == None):
+            mlb_id = self.master_list.mlb_id[(self.master_list.first_name.values == first_name) & 
+                                                  (self.master_list.last_name.values == last_name)].values
+        else:
+            mlb_id = self.master_list.mlb_id[(master_list.mlb_name.values == full_name)]
+        
+        return mlb_id
+        
     def get_fg_id(self, full_name=None,first_name=None,last_name=None):
         if (full_name == None):
             fangraphs_id = self.master_list.fg_id[(self.master_list.first_name.values == first_name) & 
@@ -38,6 +48,24 @@ class Player_Profile:
         
         return fangraphs_id
         
+    def get_lahman_id(self, full_name=None,first_name=None,last_name=None):
+        if (full_name == None):
+            lahman_id = self.master_list.lahman_id[(self.master_list.first_name.values == first_name) & 
+                                                  (self.master_list.last_name.values == last_name)].values
+        else:
+            lahman_id = self.master_list.lahman_id[(master_list.mlb_name.values == full_name)]
+        
+        return lahman_id
+        
+    def get_mlb_position(self, full_name=None,first_name=None,last_name=None):
+        if (full_name == None):
+            mlb_position = self.master_list.mlb_pos[(self.master_list.first_name.values == first_name) & 
+                                                  (self.master_list.last_name.values == last_name)].values
+        else:
+            mlb_position = self.master_list.mlb_pos[(master_list.mlb_name.values == full_name)]
+        
+        return mlb_position
+
     def get_player_info_w_id(self,fangraphs_id, info = None):
         if (info == None):
             out = self.master_list[self.master_list.fg_id == fangraphs_id]
