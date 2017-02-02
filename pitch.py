@@ -2,6 +2,7 @@
 
 # Standard modules
 import pdb
+import pandas as pd
 import os.path
 import sys
 import shutil
@@ -16,85 +17,71 @@ import pandas as pd
 import numpy as np
 
 # Modules within this package
-#import functions as fn
-#import parameters # Changed from "import parameters"
-import heatmap
-import player
+from heatmap import heatmap_url
+from heatmap import get_heatmap
+import functions as fn
+from player import Player
 
-#This will eventually be read from the lineup parameter file
-#path_data = '/Users/marco/Code/Python/Modules/gcs/data/'
-#file_master_list = 'master_player_list.csv'
 
-#def main(fangraphs_id = None, pitch='', hand='all', count='all', season='2016'):
-#	if fangraphs_id == None:
-#		fangraphs_id = sys.argv
-def predict_pitch_placement(fangraphs_id, pitch='', hand='all', count='all', season='all'):
+def main(): #fangraphs_id = None, pitch='', hand='all', count='all', season='2016'):
+	#	if fangraphs_id == None:
+	#	fangraphs_id = sys.argv
+	first_name = sys.argv[1]
+	last_name = sys.argv[2]
 
-	url = pitch_heatmap_url(fangraphs_id, pitch=pitch, hand=hand, count=count, season=season)
+	path_data = '/Users/marco/Code/Python/Modules/gcs/data/'
+	file_master_list = 'master_player_list.csv'
+	plyr = Player(path_data + file_master_list)
+	fg_id = plyr.get_fg_id(first_name=first_name,last_name=last_name)[0]
+	#print int(fg_id) 
+
+	pt = predict_pitch_type(int(fg_id))
+	print pt
+	pv = predict_pitch_velocity(int(fg_id), pitch_type = pt)
+	print pv
+	pp = predict_pitch_placement(int(fg_id), pitch_type = pt)
+	print pp
+
+	return [int(fg_id), pt, pv, pp] 
+
+def predict_pitch_placement(fangraphs_id, pitch_type='', hand='all', count='all', season='all'):
+
+	url = heatmap_url(fangraphs_id, position = 'P', pitch=pitch_type, hand=hand, count=count, season=season)
+	#print url
 	heatmap = get_heatmap(url)
 
-	return inverse_transform_sample(heatmap)
+	return fn.inverse_transform_sample(heatmap)
 
-def predict_pitch_type():
-	print 'To start, figure out what pitches and what the rate is. Eventually, a Markov treatment'
+def predict_pitch_type(fangraphs_id):
+	'''To start, figure out what pitches and what the rate is. Eventually, a Markov treatment'
+	'''
+
+	path = '/Users/marco/Code/Python/Modules/gcs/data/FanGraphs_Pitch_Type_2016.csv'
+	player_pitch_types = pd.read_csv(path) # .fillna
+
+	pitch_names = player_pitch_types.columns.values[3:17]
+	pitch_freqs = player_pitch_types[(player_pitch_types.playerid == fangraphs_id)].values[0][3:17]
+	y=np.array([float(str(x).split()[0]) for x in pitch_freqs])
+	z=np.array([])
+	for i in y:
+		if i > 0:
+			z = np.append(z,float(i))
+		else:
+			z = np.append(z,0.0)
+
+	pitch_type = pitch_names[fn.inverse_transform_sample(z)].split('%')[0]
 
 	return pitch_type
-def get_heatmap(url):
-	page = requests.get(url)
-	tree = html.fromstring(page.content)
-	heats = tree.xpath('//div[@class="hzstat"]/text()')
-	Npitch = tree.xpath('//div[@class="hzdem"]/text()')
-	heat1d = [float(i.split()[0]) for i in heats]
-	Npitch1d = [float(i.split()[0]) for i in Npitch]
 
-	return heat1d
+def predict_pitch_velocity(fangraphs_id, pitch_type, inning='all'):
 
-def inverse_transform_sample(heatmap):
-    pitch = False
-    while pitch == False:
-        location = random.randint(0,len(heatmap)-1)
-        prob = np.random.uniform(np.min(heatmap),np.max(heatmap))
-        if prob < heatmap[location]: pitch = True  
-    return location
+	path = '/Users/marco/Code/Python/Modules/gcs/data/FanGraphs_Pitch_Velocity_2016.csv'
+	player_pitch_types = pd.read_csv(path) 
 
-def pitch_heatmap_url(playerid, pitch='', hand='all', count='all', season='2016'):
-    url0 = 'http://www.fangraphs.com/zonegrid.aspx?'
-    pid_suf  = 'playerid=' + str(playerid)+'&'
-    pos_suf  = 'position=P&'
-    ss_suf   = 'ss=&' # Start Date - 2016-04-05 
-    se_suf   = 'se=&' # End Date - 2016-08-02 
-    type_suf = 'type=0&'
-    hand_suf = 'hand='+str(hand)+'&'
-    count_suf= 'count='+str(count)+'&' # 'ahead', 'behind', '0,1', '3,2', etc.
-    blur_suf = 'blur=0&'
-    grid_suf = 'grid=5&'
-    view_suf = 'view=bat&'
-    pitch_suf= 'pitch='+pitch+'&' # CH CU FA FC FT SL 
-    season_suf= 'season='+str(season)
-    
-    url=url0+pid_suf+pos_suf+ss_suf+se_suf+type_suf+hand_suf+count_suf+blur_suf+grid_suf+view_suf+pitch_suf+season_suf
-    
-    return url
+	pitch_column = np.where(player_pitch_types.columns.values == 'v'+pitch_type)[0][0]
+	pitch_velocity   = player_pitch_types[player_pitch_types.playerid == fangraphs_id].values[0][pitch_column] 
 
-def translate_pitch(input_pitch):
-	if input_pitch.lower() == 'pitch':
-		return 0
-	if input_pitch.lower() == 'strike':
-		return 0
-	if input_pitch.lower() == 'swing':
-		return 0
-	if input_pitch.lower() == 'contact':
-		return 0
-	if input_pitch.lower() == 'slg' or input_pitch.lower() == 'slg/p':
-		return 0
-	if input_pitch.lower() == 'iso' or input_pitch.lower() == 'iso/p':
-		return 0
-	if input_pitch.lower() == 'raa' or input_pitch.lower() == 'raa/p' or input_type.lower() == 'raa/100p':
-		return 0
-	if input_pitch.lower() == 'gb' or input_pitch.lower() == 'gb/p':
-		return 0
-	if input_pitch.lower() == 'cstrike' or input_pitch.lower() == 'strike':
-		return 0
+	return pitch_velocity + np.random.randn()*np.sqrt(pitch_velocity/15.)
 
 if __name__=="__main__":
     main()
