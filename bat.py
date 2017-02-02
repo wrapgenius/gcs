@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Standard modules
 import pdb
 import os.path
@@ -14,51 +16,62 @@ import pandas as pd
 import numpy as np
 
 # Modules within this package
-#import functions as fn
-#import parameters # Changed from "import parameters"
-import heatmap
-import player
+from heatmap import heatmap_url
+from heatmap import get_heatmap
+from heatmap import predict_general_heatmap
+import functions as fn
+from player import Player
 
-def batting_heatmap_url(playerid, pitch='', hand='all', count='all', season='all'):
-	#E.g Mookie Betts:
-	#http://www.fangraphs.com/zonegrid.aspx?playerid=13611&position=&ss=2016-04-05&se=2016-10-02&type=0&hand=R&count=all&blur=0&grid=5&view=bat&pitch=&season=all
-    url0 = 'http://www.fangraphs.com/zonegrid.aspx?'
-    pid_suf  = 'playerid=' + str(playerid)+'&'
-    pos_suf  = 'position=&'
-    ss_suf   = 'ss=&' # Start Date - 2016-04-05 
-    se_suf   = 'se=&' # End Date   - 2016-08-02 
-    type_suf = 'type=0&'
-    hand_suf = 'hand='+str(hand)+'&'
-    count_suf= 'count='+str(count)+'&' # 'ahead', 'behind', '0,1', '3,2', etc.
-    blur_suf = 'blur=0&'
-    grid_suf = 'grid=5&'
-    view_suf = 'view=bat&'
-    pitch_suf= 'pitch='+pitch+'&'
-    season_suf= 'season='+str(season)
-    
-    url=url0+pid_suf+pos_suf+ss_suf+se_suf+type_suf+hand_suf+count_suf+blur_suf+grid_suf+view_suf+pitch_suf+season_suf
-    
-    return url
+def main():
+	first_name = sys.argv[1]
+	last_name = sys.argv[2]
 
-def format_date(input_date):
-	print 'will eventually take any date format and return str(YYYY-MM-DD)'
+	path_data = '/Users/marco/Code/Python/Modules/gcs/data/'
+	file_master_list = 'master_player_list.csv'
+	plyr = Player(path_data + file_master_list)
+	fg_id = plyr.get_fg_id(first_name=first_name,last_name=last_name)[0]
+	print 'fangraphs_id '+ str(fg_id)
 
-def translate_type(input_type):
-	if input_type.lower() == 'pitch':
-		return 0
-	if input_type.lower() == 'strike':
-		return 0
-	if input_type.lower() == 'swing':
-		return 0
-	if input_type.lower() == 'contact':
-		return 0
-	if input_type.lower() == 'slg' or input_type.lower() == 'slg/p':
-		return 0
-	if input_type.lower() == 'iso' or input_type.lower() == 'iso/p':
-		return 0
-	if input_type.lower() == 'raa' or input_type.lower() == 'raa/p' or input_type.lower() == 'raa/100p':
-		return 0
-	if input_type.lower() == 'gb' or input_type.lower() == 'gb/p':
-		return 0
-	if input_type.lower() == 'cstrike' or input_type.lower() == 'strike':
-		return 0
+	ps = predict_general_heatmap(int(fg_id), 8, 'swing')
+	if ps == True: 
+		print 'swing!' 
+		pc = predict_general_heatmap(int(fg_id), 8, 'contact' )
+		#print pc
+		if pc == True: print 'contact!' 
+	else:
+		cs = predict_general_heatmap(int(fg_id), 8, 'cStrike')
+		if cs == True:
+			print 'strike!'
+		else:
+			print 'ball!'
+
+def predict_swing(fangraphs_id, pitch_placement, heatmap_type='swing', pitch_type='', hand='all', count='all', season='all'):
+	'''
+	Return a prediction based on pitch placement, and swing percentage.
+	Not clear if should also predict type or outcome of a swing here or in a seperate function.
+	'''
+	url = heatmap_url(fangraphs_id, heatmap=heatmap_type, pitch=pitch_type, hand=hand, count=count, season=season)
+	#print url
+	heatmap = get_heatmap(url)
+
+	#pdb.set_trace()
+	# For starters the outcome is True/False
+	if np.random.rand()*100. <= heatmap[pitch_placement]:
+		swing = True
+	else:
+		swing = False
+
+	return swing
+
+def predict_outcome():
+	'''
+	False would be a foul ball out of play
+	'''
+
+	return False
+
+
+if __name__=="__main__":
+    main()
+else:
+    logging.info("Note: `pitch` module not being run as main executable.")
