@@ -25,27 +25,3 @@ def inverse_transform_sample(pdf):
         if prob < pdf[location]: pitch = True  
     return location
 
-def translate_type(input_type):
-    if input_type.lower() == 'pitch':  #pitch%
-        return '0'
-    if input_type.lower() == 'strike': #strike%
-        #print 'strike %!'
-        return '1'
-    if input_type.lower() == 'swing':  #swing%
-        return '2'
-    if input_type.lower() == 'contact':#contact%
-        return '3'
-    if input_type.lower() == 'avg' or input_type.lower() == 'avg/p':
-        return '4'
-    if input_type.lower() == 'slg' or input_type.lower() == 'slg/p':
-        return '5'
-    if input_type.lower() == 'iso' or input_type.lower() == 'iso/p':
-        return '6'
-    if input_type.lower() == 'raa' or input_type.lower() == 'raa/p' or input_type.lower() == 'raa/100p':
-        return '7'
-    if input_type.lower() == 'gb' or input_type.lower() == 'gb/p':
-        return '8'
-    if input_type.lower() == 'cstrike' or input_type.lower() == 'strike':
-        return '9'
-    else:
-        return input_type
