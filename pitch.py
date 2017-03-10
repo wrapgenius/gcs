@@ -22,6 +22,7 @@ from heatmap import get_heatmap
 import functions as fn
 from player import Player
 
+#testing solv
 
 def main(): #fangraphs_id = None, pitch='', hand='all', count='all', season='2016'):
 	#	if fangraphs_id == None:
@@ -33,7 +34,7 @@ def main(): #fangraphs_id = None, pitch='', hand='all', count='all', season='201
 	file_master_list = 'master_player_list.csv'
 	plyr = Player(path_data + file_master_list)
 	fg_id = plyr.get_fg_id(first_name=first_name,last_name=last_name)[0]
-	#print int(fg_id) 
+	#print int(fg_id)
 
 	pt = predict_pitch_type(int(fg_id))
 	print pt
@@ -42,7 +43,7 @@ def main(): #fangraphs_id = None, pitch='', hand='all', count='all', season='201
 	pp = predict_pitch_placement(int(fg_id), pitch_type = pt)
 	print pp
 
-	return [int(fg_id), pt, pv, pp] 
+	return [int(fg_id), pt, pv, pp]
 
 def predict_pitch_placement(fangraphs_id, pitch_type='', hand='all', count='all', season='all'):
 
@@ -77,10 +78,10 @@ def predict_pitch_type(fangraphs_id):
 def predict_pitch_velocity(fangraphs_id, pitch_type, inning='all'):
 
 	path = '/Users/marco/Code/Python/Modules/gcs/data/FanGraphs_Pitch_Velocity_2016.csv'
-	player_pitch_types = pd.read_csv(path) 
+	player_pitch_types = pd.read_csv(path)
 
 	pitch_column = np.where(player_pitch_types.columns.values == 'v'+pitch_type)[0][0]
-	pitch_velocity   = player_pitch_types[player_pitch_types.playerid == fangraphs_id].values[0][pitch_column] 
+	pitch_velocity   = player_pitch_types[player_pitch_types.playerid == fangraphs_id].values[0][pitch_column]
 
 	return pitch_velocity + np.random.randn()*np.sqrt(pitch_velocity/15.)
 
