@@ -60,6 +60,7 @@ def predict_pitch_type(fangraphs_id):
 	player_pitch_types = pd.read_csv(path) # .fillna
 
 	pitch_names = player_pitch_types.columns.values[3:17]
+	#pdb.set_trace()
 	pitch_freqs = player_pitch_types[(player_pitch_types.playerid == fangraphs_id)].values[0][3:17]
 	y=np.array([float(str(x).split()[0]) for x in pitch_freqs])
 	z=np.array([])

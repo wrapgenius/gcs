@@ -31,3 +31,10 @@ from player import Player
 #This will eventually be read from the lineup parameter file
 #path_data = '/Users/marco/Code/Python/Modules/gcs/data/'
 #file_master_list = 'master_player_list.csv'
+
+
+
+if __name__=="__main__":
+    main()
+else:
+    logging.info("Note: `pitch` module not being run as main executable.")

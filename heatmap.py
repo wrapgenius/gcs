@@ -9,7 +9,7 @@ import functions as fn
 
 def heatmap_url(playerid='', position = '', heatmap='pitch', pitch='', start_date='', end_date='', hand='all', count='all', season=''):
     if playerid != '': playerid = str(playerid)
-    if heatmap != 'pitch=': heatmap = fn.translate_type(heatmap)
+    if heatmap != 'pitch=': heatmap = translate_type(heatmap)
     url0 = 'http://www.fangraphs.com/zonegridbase.aspx?'
     pid_suf  = 'playerid=' + str(playerid)+'&'
     pos_suf  = 'position='+position+'&'
@@ -38,7 +38,7 @@ def get_heatmap(url):
 
     return heat1d
 
-def predict_general_heatmap(fangraphs_id, pitch_placement, heatmap_type, pitch_type='', hand='all', count='all', season='all'):
+def predict_general_heatmap(fangraphs_id, pitch_placement, heatmap_type, pitch_type='', hand='all', count='all', season='all',talk=False):
     '''
     Generalized function returns a True/False prediction based on pitch placement, and field percentage.
     '''
@@ -48,7 +48,8 @@ def predict_general_heatmap(fangraphs_id, pitch_placement, heatmap_type, pitch_t
 
     #pdb.set_trace()
     # For starters the outcome is True/False
-    print heatmap_type +'='+str(heatmap[pitch_placement])
+    if talk == True:
+        print heatmap_type +'='+str(heatmap[pitch_placement])
     if np.random.rand()*100. <= heatmap[pitch_placement]:
         outcome = True
     else:

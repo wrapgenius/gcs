@@ -70,6 +70,10 @@ def predict_outcome():
 
 	return False
 
+#def at_bat_state(count_in, heatmap_position, heatmap_style = '5x5'):
+	#if count_in == 'ball'
+
+	#return count_out
 
 if __name__=="__main__":
     main()

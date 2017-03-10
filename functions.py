@@ -1,9 +1,7 @@
 import numpy as np
 import random
 
-def batter_count(count_in, heatmap_position, heatmap_style = '5x5'):
 
-	return count_out
 
 def clean_nans(dirty_array, replacement_char=0.0):
 	clean_array = dirty_array
@@ -17,11 +15,11 @@ def format_date(input_date):
 
 def inverse_transform_sample(pdf):
 	#def predict_pitch_location(heatmap):
-	# inverse transform sample the heatmap
+	# inverse transform sample the vector of probabilities
+	# not necessary that sum of pdf = 1.
     pitch = False
     while pitch == False:
         location = random.randint(0,len(pdf)-1)
         prob = np.random.uniform(np.min(pdf),np.max(pdf))
         if prob < pdf[location]: pitch = True  
     return location
-
